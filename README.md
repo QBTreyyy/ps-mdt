@@ -1,3 +1,6 @@
+
+![psmdt](https://github.com/QBTreyyy/ps-mdt/assets/99930941/3f0d783b-fbf5-476c-8973-f9a808707d76)
+
 # Project Sloth MDT
 
 For all support questions, ask in our [Discord](https://www.discord.gg/projectsloth) support chat. Do not create issues if you need help. Issues are for bug reporting and new features only.
@@ -14,6 +17,8 @@ For all support questions, ask in our [Discord](https://www.discord.gg/projectsl
 * Download ZIP
 * Drag and drop resource into your server files, make sure to remove -main in the folder name
 * Run the attached SQL script (mdt.sql)
+
+
 
 # Weapon Info Export
 
