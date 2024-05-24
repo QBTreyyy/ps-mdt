@@ -3,6 +3,8 @@
 
 # Project Sloth MDT
 
+Someone was selling a ps-mdt reskin on tebex, which is beyond me. So heres this. All credit goes to Project Sloth and don't buy things that were made for free
+
 For all support questions, ask in our [Discord](https://www.discord.gg/projectsloth) support chat. Do not create issues if you need help. Issues are for bug reporting and new features only.
 
 ## Dependencies
