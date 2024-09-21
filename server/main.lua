@@ -1192,71 +1192,47 @@ QBCore.Functions.CreateCallback('mdt:server:SearchWeapons', function(source, cb,
 	end
 end)
 
-RegisterNetEvent('mdt:server:saveWeaponInfo', function(serial, imageurl, notes, owner, weapClass, weapModel)
-	if serial then
-		local PlayerData = GetPlayerData(source)
-		if not PermCheck(source, PlayerData) then return cb({}) end
+--====================================================================================
+------------------------------------------
+--                Weapons PAGE          --
+------------------------------------------
+--====================================================================================
+RegisterNUICallback("searchWeapons", function(data, cb)
+    local p = promise.new()
 
-		local Player = QBCore.Functions.GetPlayer(source)
-		if Player then
-			local JobType = GetJobType(Player.PlayerData.job.name)
-			if JobType == 'police' or JobType == 'doj' then
-				local fullname = Player.PlayerData.charinfo.firstname .. ' ' .. Player.PlayerData.charinfo.lastname
-				if imageurl == nil then imageurl = 'img/not-found.webp' end
-				--AddLog event?
-				local result = false
-				result = MySQL.Async.insert('INSERT INTO mdt_weaponinfo (serial, owner, information, weapClass, weapModel, image) VALUES (:serial, :owner, :notes, :weapClass, :weapModel, :imageurl) ON DUPLICATE KEY UPDATE owner = :owner, information = :notes, weapClass = :weapClass, weapModel = :weapModel, image = :imageurl', {
-					['serial'] = serial,
-					['owner'] = owner,
-					['notes'] = notes,
-					['weapClass'] = weapClass,
-					['weapModel'] = weapModel,
-					['imageurl'] = imageurl,
-				})
+    QBCore.Functions.TriggerCallback('mdt:server:SearchWeapons', function(result)
+        p:resolve(result)
+    end, data.name)
 
-				if result then
-					TriggerEvent('mdt:server:AddLog', "A weapon with the serial number ("..serial..") was added to the weapon information database by "..fullname)
-				else
-					TriggerEvent('mdt:server:AddLog', "A weapon with the serial number ("..serial..") failed to be added to the weapon information database by "..fullname)
-				end
-			end
-		end
-	end
+    local result = Citizen.Await(p)
+    cb(result)
 end)
 
-function CreateWeaponInfo(serial, imageurl, notes, owner, weapClass, weapModel)
+RegisterNUICallback("saveWeaponInfo", function(data, cb)
+    local serial = data.serial
+    local notes = data.notes
+    local imageurl = data.imageurl
+    local owner = data.owner
+    local weapClass = data.weapClass
+    local weapModel = data.weapModel
+    local JobType = GetJobType(PlayerData.job.name)
+    if JobType == 'police' then
+        TriggerServerEvent('mdt:server:saveWeaponInfo', serial, imageurl, notes, owner, weapClass, weapModel)
+    end
+    cb(true)
+end)
 
-	local results = MySQL.query.await('SELECT * FROM mdt_weaponinfo WHERE serial = ?', { serial })
-	if results[1] then
-		return
-	end
+RegisterNUICallback("getWeaponData", function(data, cb)
+    local serial = data.serial
+    TriggerServerEvent('mdt:server:getWeaponData', serial)
+    cb(true)
+end)
 
-	if serial == nil then return end
-	if imageurl == nil then imageurl = 'img/not-found.webp' end
-
-	MySQL.Async.insert('INSERT INTO mdt_weaponinfo (serial, owner, information, weapClass, weapModel, image) VALUES (:serial, :owner, :notes, :weapClass, :weapModel, :imageurl) ON DUPLICATE KEY UPDATE owner = :owner, information = :notes, weapClass = :weapClass, weapModel = :weapModel, image = :imageurl', {
-		['serial'] = serial,
-		['owner'] = owner,
-		['notes'] = notes,
-		['weapClass'] = weapClass,
-		['weapModel'] = weapModel,
-		['imageurl'] = imageurl,
-	})
-end
-
-exports('CreateWeaponInfo', CreateWeaponInfo)
-
-RegisterNetEvent('mdt:server:getWeaponData', function(serial)
-	if serial then
-		local Player = QBCore.Functions.GetPlayer(source)
-		if Player then
-			local JobType = GetJobType(Player.PlayerData.job.name)
-			if JobType == 'police' or JobType == 'doj' then
-				local results = MySQL.query.await('SELECT * FROM mdt_weaponinfo WHERE serial = ?', { serial })
-				TriggerClientEvent('mdt:client:getWeaponData', Player.PlayerData.source, results)
-			end
-		end
-	end
+RegisterNetEvent('mdt:client:getWeaponData', function(sentData)
+    if sentData and sentData[1] then
+        local results = sentData[1]
+        SendNUIMessage({ type = "getWeaponData", data = results })
+    end
 end)
 
 RegisterNetEvent('mdt:server:getAllLogs', function()
