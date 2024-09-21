@@ -1192,48 +1192,6 @@ QBCore.Functions.CreateCallback('mdt:server:SearchWeapons', function(source, cb,
 	end
 end)
 
---====================================================================================
-------------------------------------------
---                Weapons PAGE          --
-------------------------------------------
---====================================================================================
-RegisterNUICallback("searchWeapons", function(data, cb)
-    local p = promise.new()
-
-    QBCore.Functions.TriggerCallback('mdt:server:SearchWeapons', function(result)
-        p:resolve(result)
-    end, data.name)
-
-    local result = Citizen.Await(p)
-    cb(result)
-end)
-
-RegisterNUICallback("saveWeaponInfo", function(data, cb)
-    local serial = data.serial
-    local notes = data.notes
-    local imageurl = data.imageurl
-    local owner = data.owner
-    local weapClass = data.weapClass
-    local weapModel = data.weapModel
-    local JobType = GetJobType(PlayerData.job.name)
-    if JobType == 'police' then
-        TriggerServerEvent('mdt:server:saveWeaponInfo', serial, imageurl, notes, owner, weapClass, weapModel)
-    end
-    cb(true)
-end)
-
-RegisterNUICallback("getWeaponData", function(data, cb)
-    local serial = data.serial
-    TriggerServerEvent('mdt:server:getWeaponData', serial)
-    cb(true)
-end)
-
-RegisterNetEvent('mdt:client:getWeaponData', function(sentData)
-    if sentData and sentData[1] then
-        local results = sentData[1]
-        SendNUIMessage({ type = "getWeaponData", data = results })
-    end
-end)
 
 RegisterNetEvent('mdt:server:getAllLogs', function()
 	local src = source
