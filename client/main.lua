@@ -65,6 +65,21 @@ RegisterNetEvent('QBCore:Player:SetPlayerData', function(val)
     PlayerData = val
 end)
 
+RegisterNetEvent('ps-mdt:client:selfregister')
+AddEventHandler('ps-mdt:client:selfregister', function()
+    GetPlayerWeaponInfos(function(weaponInfos)
+        if weaponInfos and #weaponInfos > 0 then
+            for _, weaponInfo in ipairs(weaponInfos) do
+                TriggerServerEvent('mdt:server:registerweapon', weaponInfo.serialnumber, weaponInfo.weaponurl, weaponInfo.notes, weaponInfo.owner, weaponInfo.weapClass, weaponInfo.weaponmodel)
+                TriggerEvent('QBCore:Notify', "Weapon " .. weaponInfo.weaponmodel .. " has been added to police database.")
+                --print("Weapon added to database")
+            end
+        else
+           -- print("No weapons found")
+        end
+    end)
+end)
+
 AddEventHandler('onResourceStart', function(resourceName)
     if GetCurrentResourceName() ~= resourceName then return end
     Wait(150)
